@@ -1,0 +1,41 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# CUDA / NVCC build artifacts
+*.fatbin
+*.cubin
+*.ptx
+*.o
+*.a
+*.so
+*.d
+*.fatbin.c
+
+# Build outputs
+/build/
+out/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Profiling
+perf.data
+perf.data.old
+flamegraph.svg
+*.perf
+
+# Kani / Prusti verification artifacts
+.kani/
+.prusti/
+prusti-contracts/
+
+# Logs
+*.log
+aegis-gpu.sock
