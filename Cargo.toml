@@ -1,0 +1,79 @@
+[package]
+name = "aegis-gpu"
+version = "0.1.0"
+edition = "2021"
+authors = ["Aegis Project"]
+description = "A Rust-based microkernel for secure multi-tenant GPU execution"
+license = "MIT"
+repository = "https://github.com/aegis-gpu/aegis-gpu"
+
+[workspace]
+members = [
+    ".",
+    "benches",
+]
+
+[lib]
+name = "aegis_gpu"
+crate-type = ["lib", "staticlib"]
+
+[[bin]]
+name = "aegis-hypervisor"
+path = "src/main.rs"
+
+[dependencies]
+# Async runtime (no_std compatible subset)
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"] }
+
+# Lock-free data structures
+crossbeam = { version = "0.8", features = ["crossbeam-channel", "crossbeam-queue"] }
+crossbeam-epoch = "0.9"
+
+# Bit manipulation / SIMD helpers
+bitflags = "2"
+bytemuck = { version = "1", features = ["derive"] }
+packed_struct = "0.10"
+
+# PCIe / MMIO
+memmap2 = "0.9"
+libc = "0.2"
+nix = { version = "0.28", features = ["mman", "ioctl", "poll"] }
+
+# PTX parsing and rewriting
+nom = "7"                   # parser combinators for PTX grammar
+regex = "1"
+
+# Cryptographic hashing for context integrity
+blake3 = "1"
+
+# Logging / tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Formal verification annotations (Kani / Prusti stubs when not in verify mode)
+cfg-if = "1"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1"
+kani-verifier = { version = "0.47", optional = true }
+
+[features]
+default = []
+verify = ["kani-verifier"]
+simd-avx512 = []          # Enable AVX-512 SIMD flush paths
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+overflow-checks = false   # Replaced by explicit range checks in hypervisor paths
+
+[profile.bench]
+inherits = "release"
+debug = true
